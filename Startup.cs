@@ -31,6 +31,9 @@ namespace ShoppingListAPI
             services.AddControllers();
             services.AddControllersWithViews();
 
+            //Register the Swagger services
+            services.AddSwaggerDocument();
+
 
             services.AddDbContext<ShoppingListContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ShoppingListAPIConnection")));
             services.AddCors();
@@ -59,6 +62,10 @@ namespace ShoppingListAPI
             {
                 endpoints.MapControllers();
             });
+
+            //Register the Swagger generator and the swagger UI middleware
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
         }
     }
 }
