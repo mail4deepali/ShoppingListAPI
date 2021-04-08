@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingListAPI.Model;
@@ -41,6 +42,7 @@ namespace ShoppingListAPI.Controllers
 
         //POST: api/ShoppingList
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Item>> PostItem(Item item)
         {
             _context.Items.Add(item);
