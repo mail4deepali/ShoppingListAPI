@@ -1,11 +1,11 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingListAPI.Model;
+using ShoppingListAPI.Services;
 
 namespace ShoppingListAPI.Controllers
 {
@@ -13,31 +13,27 @@ namespace ShoppingListAPI.Controllers
     [ApiController]
     public class ShoppingListController : ControllerBase
     {
-        private readonly ShoppingListContext _context;
+        private ShoppingListService _shoppingListService;
 
-        public ShoppingListController(ShoppingListContext context)
+        public ShoppingListController(ShoppingListService shoppingListService)
         {
-            _context = context;
+            _shoppingListService = shoppingListService;
         }
 
         //GET: api/ShoppingList
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Item>>> GetItems()
         {
-            return await _context.Items.ToListAsync();
+            return await _shoppingListService.GetItemsAsync();
         }
 
+       
         //GET: api/ShoppingList/1
         [HttpGet("{id}")]
 
         public async Task<ActionResult<Item>> GetItem(int id)
         {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
-            return item;
+            return await _shoppingListService.GetItemAsync(id);
         }
 
         //POST: api/ShoppingList
@@ -45,35 +41,18 @@ namespace ShoppingListAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Item>> PostItem(Item item)
         {
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetItem", new { id = item.ItemId }, item);
+           if(await _shoppingListService.AddItemAsync(item))
+            {
+                return CreatedAtAction("GetItem", new { id = item.ItemId }, item);
+            }
+            return BadRequest();
         }
 
         //PUT: api/ShoppingList/1
         [HttpPut("{id}")]
         public async Task<IActionResult> PutItem(int id, Item item)
         {
-            if(id != item.ItemId)
-            {
-                return BadRequest();
-            }
-            _context.Entry(item).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch(DbUpdateConcurrencyException)
-            {
-                if(!ItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _shoppingListService.UpdateItem(id, item);
             return NoContent();
         }
 
@@ -81,19 +60,10 @@ namespace ShoppingListAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
         {
-            var item = await _context.Items.FindAsync(id);
-            if(item == null)
-            {
+            if (await _shoppingListService.DeleteItem(id))
                 return NotFound();
-            }
-
-            _context.Items.Remove(item);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
-       private bool ItemExists(int id)
-        {
-            return _context.Items.Any(t => t.ItemId == id);
-        }
+       
     }
 }
