@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using ShoppingListAPI.Services;
 
 namespace ShoppingListAPI
@@ -30,7 +31,6 @@ namespace ShoppingListAPI
             services.AddDbContext<ShoppingListContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ShoppingListAPIConnection")));
             services.AddCors();
             services.AddScoped<ShoppingListService, ShoppingListService>();
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

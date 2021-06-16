@@ -6,13 +6,31 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ShoppingListAPI
 {
     public class Program
     {
+        private static IConfiguration _config;
+
+        public static IConfiguration Configuration
+        {
+            get
+            {
+                if (_config == null)
+                {
+                    _config = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json").Build();
+                }
+                return _config;
+            }
+        }
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .CreateLogger();
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -20,7 +38,9 @@ namespace ShoppingListAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                    .UseStartup<Startup>()
+                    .UseSerilog();
                 });
     }
 }
