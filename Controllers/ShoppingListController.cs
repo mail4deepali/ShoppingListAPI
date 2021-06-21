@@ -22,7 +22,7 @@ namespace ShoppingListAPI.Controllers
 
         //GET: api/ShoppingList
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItems()
+        public async Task<List<Item>> GetItems()
         {
             return await _shoppingListService.GetItemsAsync();
         }
@@ -31,7 +31,7 @@ namespace ShoppingListAPI.Controllers
         //GET: api/ShoppingList/1
         [HttpGet("{id}")]
 
-        public async Task<ActionResult<Item>> GetItem(int id)
+        public async Task<Item> GetItem(int id)
         {
             return await _shoppingListService.GetItemAsync(id);
         }
@@ -39,30 +39,23 @@ namespace ShoppingListAPI.Controllers
         //POST: api/ShoppingList
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<Item>> PostItem(Item item)
+        public async Task<bool> PostItem(Item item)
         {
-           if(await _shoppingListService.AddItemAsync(item))
-            {
-                return CreatedAtAction("GetItem", new { id = item.ItemId }, item);
-            }
-            return BadRequest();
+            return await _shoppingListService.AddItemAsync(item);
         }
 
         //PUT: api/ShoppingList/1
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutItem(int id, Item item)
+        public async Task<bool> PutItem(int id, Item item)
         {
-            await _shoppingListService.UpdateItem(id, item);
-            return NoContent();
+           return await _shoppingListService.UpdateItem(id, item);
         }
 
         //DELETE api/ShoppingList/1
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteItem(int id)
+        public async Task<bool> DeleteItem(int id)
         {
-            if (await _shoppingListService.DeleteItem(id))
-                return NotFound();
-            return NoContent();
+            return await _shoppingListService.DeleteItem(id);
         }
        
     }
